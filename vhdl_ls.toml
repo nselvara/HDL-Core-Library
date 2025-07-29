@@ -1,0 +1,55 @@
+# This file tells the VHDL LS linter where libraries and the working folder files are.
+# In its current form this works for Windows and Linux simultaneously as long as:
+# There is a Python virtual environment with VUnit installed in the main folder. The folder name of the virtual environment has to contain 'venv' 
+
+[libraries]
+
+vunit_lib.files = [
+  '*venv*/Lib/site-packages/vunit/vhdl/*.vhd',
+  '*venv*/Lib/site-packages/vunit/vhdl/**/src/*.vhd',
+]
+vunit_lib.exclude = [
+    '**/*2019*.vhd',
+    '**/*2002*.vhd',
+    '**/*93*.vhd',
+]
+vunit_lib.is_third_party = true
+
+osvvm.files = [
+  '*venv*/lib/python*/site-packages/vunit/vhdl/osvvm/*.vhd',
+  '*venv*/Lib/site-packages/vunit/vhdl/osvvm/*.vhd',
+]
+osvvm.exclude = [
+    '**/*2019*.vhd',
+    '**/*2002*.vhd',
+    '**/*93*.vhd',
+    '**/*Aldec*.vhd', # Aldec simulater specific files
+    '**/*_c*.vhd',
+]
+osvvm.is_third_party = true
+
+defaultlib.files = [
+  './ip/**/*.vhd',
+]
+
+UNISIM.files = [
+  'C:\Xilinx\Vivado\*\data\vhdl\src\unisims\*.vhd',
+  'C:\Xilinx\Vivado\*\data\vhdl\src\unisims\**\*.vhd',
+  '/opt/data/vhdl/src/unisims/*.vhd',   # NOTE: Set the correct path!
+  '/opt/data/vhdl/src/unisims/**/*.vhd',   # NOTE: Set the correct path!
+]
+UNISIM.is_third_party = true
+
+xpm.files = [
+  'C:\Xilinx\Vivado\*\data\ip\xpm\*.vhd',
+  'C:\Xilinx\Vivado\*\data\ip\xpm\**\*.vhd',
+  '/opt/Xilinx/Vivado/version/data/ip/xpm/*.vhd',   # NOTE: Set the correct path!
+  '/opt/Xilinx/Vivado/version/data/ip/xpm/**/*.vhd' # NOTE: Set the correct path!
+]
+xpm.is_third_party = true
+
+altera_mf.files = [
+  'C:/intelFPGA_pro/22.4/quartus/eda/sim_lib/altera_mf_components.vhd',
+  '/opt/intelFPGA/22.4/quartus/eda/sim_lib/altera_mf_components.vhd',
+]
+altera_mf.is_third_party = true

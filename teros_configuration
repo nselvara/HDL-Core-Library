@@ -1,0 +1,423 @@
+{
+    "general": {
+        "general": {
+            "pypath": "",
+            "makepath": "",
+            "go_to_definition_vhdl": true,
+            "go_to_definition_verilog": true,
+            "developer_mode": false
+        }
+    },
+    "documentation": {
+        "general": {
+            "language": "english",
+            "symbol_vhdl": "!",
+            "symbol_verilog": "!",
+            "dependency_graph": true,
+            "self_contained": true,
+            "fsm": true,
+            "ports": "all",
+            "generics": "all",
+            "instantiations": "all",
+            "signals": "all",
+            "constants": "all",
+            "types": "all",
+            "process": "all",
+            "functions": "all",
+            "magic_config_path": ""
+        }
+    },
+    "editor": {
+        "general": {
+            "stutter_comment_shortcuts": false,
+            "stutter_block_width": 80,
+            "stutter_max_width": 0,
+            "stutter_delimiters": false,
+            "stutter_bracket_shortcuts": false
+        }
+    },
+    "formatter": {
+        "general": {
+            "formatter_verilog": "istyle",
+            "formatter_vhdl": "standalone"
+        },
+        "istyle": {
+            "style": "ansi",
+            "indentation_size": 4
+        },
+        "s3sv": {
+            "one_bind_per_line": false,
+            "one_declaration_per_line": false,
+            "use_tabs": false,
+            "indentation_size": 2
+        },
+        "verible": {
+            "format_args": ""
+        },
+        "standalone": {
+            "keyword_case": "lowercase",
+            "name_case": "lowercase",
+            "indentation": "    ",
+            "align_port_generic": false,
+            "align_comment": false,
+            "remove_comments": false,
+            "remove_reports": false,
+            "check_alias": false,
+            "new_line_after_then": "new_line",
+            "new_line_after_semicolon": "new_line",
+            "new_line_after_else": "new_line",
+            "new_line_after_port": "no_new_line",
+            "new_line_after_generic": "no_new_line"
+        },
+        "svg": {
+            "configuration": "",
+            "core_number": 2,
+            "aditional_arguments": ""
+        }
+    },
+    "linter": {
+        "general": {
+            "linter_vhdl": "ghdl",
+            "linter_verilog": "modelsim",
+            "lstyle_verilog": "disabled",
+            "lstyle_vhdl": "disabled"
+        },
+        "ghdl": {
+            "arguments": ""
+        },
+        "icarus": {
+            "arguments": ""
+        },
+        "modelsim": {
+            "vhdl_arguments": "",
+            "verilog_arguments": ""
+        },
+        "verible": {
+            "arguments": ""
+        },
+        "verilator": {
+            "arguments": ""
+        },
+        "vivado": {
+            "vhdl_arguments": "",
+            "verilog_arguments": ""
+        },
+        "vsg": {
+            "arguments": ""
+        }
+    },
+    "schematic": {
+        "general": {
+            "backend": "yowasp",
+            "extra": "",
+            "args": ""
+        }
+    },
+    "templates": {
+        "general": {
+            "header_file_path": "",
+            "indent": "  ",
+            "clock_generation_style": "inline",
+            "instance_style": "inline"
+        }
+    },
+    "tools": {
+        "general": {
+            "select_tool": "ghdl",
+            "gtkwave_installation_path": "",
+            "gtkwave_extra_arguments": "",
+            "execution_mode": "cmd",
+            "waveform_viewer": "tool"
+        },
+        "osvvm": {
+            "installation_path": "",
+            "tclsh_binary": "",
+            "simulator_name": "ghdl"
+        },
+        "ascenlint": {
+            "installation_path": "",
+            "ascentlint_options": [
+                ""
+            ]
+        },
+        "cocotb": {
+            "installation_path": "",
+            "simulator_name": "ghdl",
+            "compile_args": "",
+            "run_args": "",
+            "plusargs": ""
+        },
+        "diamond": {
+            "installation_path": "",
+            "part": ""
+        },
+        "ghdl": {
+            "installation_path": "",
+            "waveform": "vcd",
+            "analyze_options": [
+                ""
+            ],
+            "run_options": [
+                ""
+            ]
+        },
+        "icarus": {
+            "installation_path": "",
+            "timescale": "",
+            "iverilog_options": [
+                ""
+            ]
+        },
+        "icestorm": {
+            "installation_path": "",
+            "pnr": "none",
+            "arch": "xilinx",
+            "output_format": "json",
+            "yosys_as_subtool": false,
+            "makefile_name": "",
+            "arachne_pnr_options": [
+                ""
+            ],
+            "nextpnr_options": [
+                ""
+            ],
+            "yosys_synth_options": [
+                ""
+            ]
+        },
+        "ise": {
+            "installation_path": "",
+            "family": "",
+            "device": "",
+            "package": "",
+            "speed": ""
+        },
+        "isem": {
+            "installation_path": "",
+            "fuse_options": [
+                ""
+            ],
+            "isim_options": [
+                ""
+            ]
+        },
+        "modelsim": {
+            "installation_path": "",
+            "vcom_options": [
+                ""
+            ],
+            "vlog_options": [
+                ""
+            ],
+            "vsim_options": [
+                ""
+            ]
+        },
+        "morty": {
+            "installation_path": "",
+            "morty_options": [
+                ""
+            ]
+        },
+        "quartus": {
+            "installation_path": "",
+            "family": "",
+            "device": "",
+            "cable": "",
+            "board_device_index": "",
+            "pnr": "none",
+            "dse_options": [
+                ""
+            ],
+            "quartus_options": [
+                ""
+            ]
+        },
+        "radiant": {
+            "installation_path": "",
+            "part": ""
+        },
+        "rivierapro": {
+            "installation_path": "",
+            "compilation_mode": "",
+            "vlog_options": [
+                ""
+            ],
+            "vsim_options": [
+                ""
+            ]
+        },
+        "spyglass": {
+            "installation_path": "",
+            "methodology": "",
+            "goals": [
+                ""
+            ],
+            "spyglass_options": [
+                ""
+            ],
+            "rule_parameters": [
+                ""
+            ]
+        },
+        "symbiyosys": {
+            "installation_path": "",
+            "tasknames": [
+                ""
+            ]
+        },
+        "symbiflow": {
+            "installation_path": "",
+            "package": "",
+            "part": "",
+            "vendor": "",
+            "pnr": "vpr",
+            "vpr_options": "",
+            "environment_script": ""
+        },
+        "trellis": {
+            "installation_path": "",
+            "arch": "xilinx",
+            "output_format": "json",
+            "yosys_as_subtool": false,
+            "makefile_name": "",
+            "script_name": "",
+            "nextpnr_options": [
+                ""
+            ],
+            "yosys_synth_options": [
+                ""
+            ]
+        },
+        "vcs": {
+            "installation_path": "",
+            "vcs_options": [
+                ""
+            ],
+            "run_options": [
+                ""
+            ]
+        },
+        "verible": {
+            "installation_path": ""
+        },
+        "verilator": {
+            "installation_path": "",
+            "mode": "lint-only",
+            "libs": [
+                ""
+            ],
+            "verilator_options": [
+                ""
+            ],
+            "make_options": [
+                ""
+            ],
+            "run_options": [
+                ""
+            ]
+        },
+        "vivado": {
+            "installation_path": "",
+            "part": "",
+            "synth": "",
+            "pnr": "vivado",
+            "jtag_freq": 10000,
+            "hw_target": ""
+        },
+        "vunit": {
+            "installation_path": "",
+            "simulator_name": "ghdl",
+            "runpy_mode": "standalone",
+            "extra_options": "",
+            "enable_array_util_lib": false,
+            "enable_com_lib": false,
+            "enable_json4vhdl_lib": false,
+            "enable_osvvm_lib": false,
+            "enable_random_lib": false,
+            "enable_verification_components_lib": false
+        },
+        "xcelium": {
+            "installation_path": "",
+            "xmvhdl_options": [
+                ""
+            ],
+            "xmvlog_options": [
+                ""
+            ],
+            "xmsim_options": [
+                ""
+            ],
+            "xrun_options": [
+                ""
+            ]
+        },
+        "xsim": {
+            "installation_path": "",
+            "xelab_options": [
+                ""
+            ],
+            "xsim_options": [
+                ""
+            ]
+        },
+        "yosys": {
+            "installation_path": "",
+            "arch": "xilinx",
+            "output_format": "json",
+            "yosys_as_subtool": false,
+            "makefile_name": "",
+            "script_name": "",
+            "yosys_synth_options": [
+                ""
+            ]
+        },
+        "openfpga": {
+            "installation_path": "",
+            "arch": "",
+            "task_options": [
+                ""
+            ]
+        },
+        "activehdl": {
+            "installation_path": ""
+        },
+        "nvc": {
+            "installation_path": ""
+        },
+        "questa": {
+            "installation_path": ""
+        },
+        "raptor": {
+            "installation_path": "",
+            "target_device": "1GE100",
+            "vhdl_version": "VHDL_1993",
+            "verilog_version": "V_2001",
+            "sv_version": "SV_2012",
+            "optimization": "none",
+            "effort": "high",
+            "fsm_encoding": "onehot",
+            "carry": "auto",
+            "pnr_netlist_language": "verilog",
+            "dsp_limit": 154,
+            "block_ram_limit": 154,
+            "fast_synthesis": false,
+            "top_level": "",
+            "sim_source_list": [
+                ""
+            ],
+            "simulate_rtl": false,
+            "waveform_rtl": "syn_tb_rtl.fst",
+            "simulator_rtl": "ghdl",
+            "simulation_options_rtl": "--stop-time=1000ns",
+            "simulate_gate": false,
+            "waveform_gate": "syn_tb_gate.fst",
+            "simulator_gate": "ghdl",
+            "simulation_options_gate": "--stop-time=1000ns",
+            "simulate_pnr": false,
+            "waveform_pnr": "sim_pnr.fst",
+            "simulator_pnr": "ghdl",
+            "simulation_options_pnr": "--stop-time=1000ns"
+        }
+    }
+}
