@@ -1,0 +1,99 @@
+name: VUnit Tests
+
+on:
+  push:
+    paths:
+      - 'ip/**'
+      - '.github/workflows/vunit.yml'
+  pull_request:
+
+permissions:
+  contents: read
+  actions: read
+  checks: write
+  pull-requests: write
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30  # Prevent runaway jobs
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
+
+      - uses: nickg/setup-nvc@v1
+        with:
+          version: latest
+      - run: |
+          git clone https://github.com/nselvara/gplgpu
+          cd gplgpu
+          mkdir -p /opt/intelFPGA/20.1/quartus/eda/
+          cp -r ./hdl/sim_lib/ /opt/intelFPGA/20.1/quartus/eda/
+
+          # ls /opt/intelFPGA/20.1/quartus/eda/sim_lib/
+
+          # Create empty files to avoid errors with NVC
+          touch $QUARTUS_ROOTDIR/eda/sim_lib/fiftyfivenm_atoms.vhd
+          touch $QUARTUS_ROOTDIR/eda/sim_lib/fiftyfivenm_components.vhd
+          touch $QUARTUS_ROOTDIR/eda/sim_lib/cycloneive_atoms.vhd
+          touch $QUARTUS_ROOTDIR/eda/sim_lib/cyclonev_atoms.vhd
+          touch $QUARTUS_ROOTDIR/eda/sim_lib/cyclonev_components.vhd
+          touch $QUARTUS_ROOTDIR/eda/sim_lib/cyclone10lp_atoms.vhd
+          touch $QUARTUS_ROOTDIR/eda/sim_lib/cyclone10lp_components.vhd
+          touch $QUARTUS_ROOTDIR/eda/sim_lib/cyclonev_hssi_atoms.vhd
+          touch $QUARTUS_ROOTDIR/eda/sim_lib/cyclonev_hssi_components.vhd
+
+          nvc --version    # NVC binary added to path
+          nvc --install xpm_vhdl
+          nvc --install quartus
+        env:
+          QUARTUS_ROOTDIR: "/opt/intelFPGA/20.1/quartus"
+
+      - name: Install VUnit
+        run: |
+          pip install vunit-hdl==5.0.0.dev6
+
+      - name: Verify installations
+        run: |
+          nvc --version
+          python -c "import vunit; print('VUnit version:', vunit.__version__)"
+
+      - name: Create test reports directory
+        run: mkdir -p test-reports
+
+      - name: Run VUnit tests
+        run: |
+          rm -rf ./gplgpu
+          python ./ip/test_runner_ci_cd.py --xunit-xml=test-reports/vunit_results.xml
+        env:
+          VUNIT_CI_MODE: "true"
+          QUARTUS_ROOTDIR: "/opt/intelFPGA/20.1/quartus"
+        timeout-minutes: 15  # Test execution timeout
+
+      - name: Generate XUnit Viewer Report  
+        uses: AutoModality/action-xunit-viewer@v1
+        if: always()
+        with:
+          results: test-reports/vunit_results.xml
+          title: HDL Core Library Test Results
+
+      - name: Publish Test Results
+        uses: EnricoMi/publish-unit-test-result-action@v2
+        if: always()
+        with:
+          files: test-reports/vunit_results.xml
+          check_name: VUnit Test Results
+
+      - name: Upload test results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: test-results
+          path: test-reports/
