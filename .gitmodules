@@ -1,0 +1,3 @@
+[submodule "ip/vhdl_utils"]
+	path = ip/vhdl_utils
+	url = git@github.com:nselvara/VHDL-Utils.git
