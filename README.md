@@ -1,5 +1,5 @@
 [![MIT License](https://img.shields.io/badge/License-MIT-green.svg)](https://opensource.org/licenses/MIT)
-[![VUnit Tests](https://github.com/nselvara/HDL-Core-Lib/workflows/VUnit%20Tests/badge.svg)](https://github.com/nselvara/HDL-Core-Lib/actions)
+[![VUnit Tests](https://github.com/nselvara/HDL-Core-Library/workflows/VUnit%20Tests/badge.svg)](https://github.com/nselvara/HDL-Core-Library/actions)
 
 # HDL Core Library
 
