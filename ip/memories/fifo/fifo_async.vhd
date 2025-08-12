@@ -211,7 +211,7 @@ architecture own_behavioural_async_fifo of fifo_async is
         return binary;
     end function;
 begin
-    words_stored_calc: process(read_clk)
+    words_stored_calc: process (read_clk)
         variable write_ptr_sync: unsigned(ADDRESS_WIDTH downto 0);
         variable diff: integer;
     begin
@@ -222,7 +222,7 @@ begin
         end if;
     end process;
 
-    write_pointer_logic: process(aclr, write_clk)
+    write_pointer_logic: process (aclr, write_clk)
     begin
         if aclr then
             write_pointer_binary <= (others => '0');
@@ -235,7 +235,7 @@ begin
         end if;
     end process;
 
-    read_pointer_logic: process(aclr, read_clk)
+    read_pointer_logic: process (aclr, read_clk)
     begin
         if aclr then
             read_pointer_binary <= (others => '0');
@@ -276,7 +276,7 @@ begin
 
     empty <= '1' when read_pointer_gray = write_pointer_gray_sync else '0';
 
-    full_flag_detect: process(all)
+    full_flag_detect: process (all)
         variable pointers_msbs_are_different: boolean;
         variable addresses_msbs_are_different: boolean;
         variable lower_address_parts_are_equal: boolean;
@@ -290,7 +290,7 @@ begin
     write_address <= write_pointer_binary(write_address'range);
     read_address <= read_pointer_binary(read_address'range);
 
-    valid_flag_detect: process(aclr, read_clk)
+    valid_flag_detect: process (aclr, read_clk)
     begin
         if aclr then
             read_data_valid <= '0';

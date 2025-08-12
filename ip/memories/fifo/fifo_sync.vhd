@@ -217,7 +217,7 @@ begin
     write_address <= std_ulogic_vector(write_pointer);
     read_address <= std_ulogic_vector(read_pointer);
 
-    valid_flag_detect: process(sys_clk)
+    valid_flag_detect: process (sys_clk)
     begin
         if rising_edge(sys_clk) then
             if sys_rst_n = '0' then

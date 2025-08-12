@@ -95,7 +95,7 @@ begin
     ------------------------------------------------------------
     -- Edge counters
     ------------------------------------------------------------
-    process(out_clk_0)
+    process (out_clk_0)
     begin
         if rising_edge(out_clk_0) then
             if reset_out_clk_0 then
@@ -106,7 +106,7 @@ begin
         end if;
     end process;
 
-    process(out_clk_1)
+    process (out_clk_1)
     begin
         if rising_edge(out_clk_1) then
             if reset_out_clk_1 then
