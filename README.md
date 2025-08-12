@@ -22,6 +22,14 @@ A comprehensive collection of reusable VHDL IP cores for digital design, includi
 - **FF Synchroniser Vector** - Vector version of flip-flop synchroniser
 - **Clock Generator** - Configurable clock generation module
 - **Reset on Startup** - Power-on reset generation
+- **Clock Enable** - Clock enable generator for clock division
+
+### Communication Interfaces
+
+- **SPI Interface** - Complete SPI communication interface with configurable modes
+  - **SPI TX** - SPI transmit module
+  - **SPI RX** - SPI receive module
+  - **SPI Package** - SPI related constants and types
 
 ### Input Processing
 
@@ -29,8 +37,8 @@ A comprehensive collection of reusable VHDL IP cores for digital design, includi
 
 ### Utility Packages
 
-- **utils_pkg** - Comprehensive utility functions (bit counting, one-hot detection, power operations)
-- **tb_utils** - Testbench utilities for clock generation and common test procedures
+- **utils_pkg** - General-purpose utility functions for VHDL design and verification (see [`ip/vhdl_utils/README.md`](ip/vhdl_utils/README.md) for full list)
+- **tb_utils** - Testbench utilities for clock generation, reset, and simulation support (see [`ip/vhdl_utils/README.md`](ip/vhdl_utils/README.md) for details)
 - **memories_pkg** - Memory-related constants and types
 
 ## ✨ Key Features
@@ -46,9 +54,12 @@ A comprehensive collection of reusable VHDL IP cores for digital design, includi
 
 ```tree
 ip/
-├── pll/     # Clock generation modules
+├── pll/                # Clock generation modules
+├── clock_enable/       # Clock enable generator
 ├── debouncer/          # Input debouncing
 ├── ff_synchroniser/    # Clock domain crossing synchronizers
+├── communication/      # Communication interfaces
+│   └── spi/           # SPI interface modules
 ├── memories/           # Memory IP cores
 │   ├── fifo/          # FIFO implementations
 │   ├── ram/           # RAM modules (single/dual port)
@@ -89,19 +100,41 @@ dual_ram_inst: entity work.dual_port_ram
     );
 ```
 
-### Using Utility Functions
+### Using SPI Interface
 
 ```vhdl
-library work;
-use work.utils_pkg.all;
+-- SPI Interface instantiation
+spi_inst: entity work.spi_interface
+    port map (
+        sys_clk     => clk,
+        sys_rst_n   => rst_n,
+        -- SPI signals
+        spi_sck     => spi_clk,
+        spi_mosi    => mosi,
+        spi_miso    => miso,
+        spi_cs_n    => cs_n,
+        -- Control interface
+        tx_data     => data_to_send,
+        tx_valid    => tx_valid,
+        tx_ready    => tx_ready,
+        rx_data     => received_data,
+        rx_valid    => rx_valid
+    );
+```
 
--- Examples of utility function usage
-signal data_vec: std_ulogic_vector(7 downto 0);
-signal bit_count: natural;
-signal is_power_of_two: boolean;
+### Using Clock Enable
 
-bit_count <= get_amount_of_state(data_vec, '1');  -- Count ones
-is_power_of_two <= is_one_hot(data_vec);          -- Check if one-hot
+```vhdl
+-- Clock Enable instantiation
+clk_en_inst: entity work.clock_enable
+    generic map (
+        DIV_FACTOR => 4  -- Divide clock by 4
+    )
+    port map (
+        sys_clk    => clk,
+        sys_rst_n  => rst_n,
+        clk_en_out => clk_en
+    );
 ```
 
 The VHDL codes are tested with [VUnit framework's](https://vunit.github.io/) checks, [OSVVM](https://osvvm.org/) random features and simulated with [EDA Playground](https://www.edaplayground.com/) and/or [ModelSim](https://en.wikipedia.org/wiki/ModelSim).
@@ -278,6 +311,8 @@ Most IP cores in this library support multiple implementations:
 | FF Synchroniser        | Yes                   | Yes                         | Yes                           |
 | FF Synchroniser Vector | Yes                   | Yes                         | Yes                           |
 | Clock Generator (PLL)  | Yes (Xilinx PLL)      | Yes (Intel PLL)             | No                            |
+| Clock Enable           | Yes                   | Yes                         | Yes                           |
+| SPI Interface          | Yes                   | Yes                         | Yes                           |
 | Debouncer              | Yes                   | Yes                         | Yes                           |
 | Reset on Startup       | Yes                   | Yes                         | Yes                           |
 
