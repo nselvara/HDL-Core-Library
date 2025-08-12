@@ -19,7 +19,7 @@ use ieee.std_logic_1164.all;
 
 entity ff_synchroniser is
     generic (
-        SYNC_SHIFT_FF: positive range 2 to 10 := 4; --! Flip Flops to sync: Range: 2-10
+        SYNC_SHIFT_FF: positive range 2 to 10 := 4; --! Flip Flops to sync: Range: 2 - 10
         INIT_SYNC_FF: boolean := false;             --! false=disable simulation init values, true=enable simulation init values
         SIM_ASSERT_MSG: boolean := false;           --! false=disable simulation messages, true=enable simulation messages
         SRC_INPUT_REG: boolean := true              --! false=do not register input, true=register input (to catch combinatorial logic)

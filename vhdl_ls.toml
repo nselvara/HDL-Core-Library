@@ -1,6 +1,6 @@
 # This file tells the VHDL LS linter where libraries and the working folder files are.
 # In its current form this works for Windows and Linux simultaneously as long as:
-# There is a Python virtual environment with VUnit installed in the main folder. The folder name of the virtual environment has to contain 'venv' 
+# There is a Python virtual environment with VUnit installed in the main folder. The folder name of the virtual environment has to contain 'venv'
 
 [libraries]
 
@@ -33,16 +33,16 @@ defaultlib.files = [
 ]
 
 UNISIM.files = [
-  'C:\Xilinx\Vivado\*\data\vhdl\src\unisims\*.vhd',
-  'C:\Xilinx\Vivado\*\data\vhdl\src\unisims\**\*.vhd',
+  'C:/Xilinx/Vivado/*/data/vhdl/src/unisims/*.vhd',
+  'C:/Xilinx/Vivado/*/data/vhdl/src/unisims/**/*.vhd',
   '/opt/data/vhdl/src/unisims/*.vhd',   # NOTE: Set the correct path!
   '/opt/data/vhdl/src/unisims/**/*.vhd',   # NOTE: Set the correct path!
 ]
 UNISIM.is_third_party = true
 
 xpm.files = [
-  'C:\Xilinx\Vivado\*\data\ip\xpm\*.vhd',
-  'C:\Xilinx\Vivado\*\data\ip\xpm\**\*.vhd',
+  'C:/Xilinx/Vivado/*/data/ip/xpm/*.vhd',
+  'C:/Xilinx/Vivado/*/data/ip/xpm/**/*.vhd',
   '/opt/Xilinx/Vivado/version/data/ip/xpm/*.vhd',   # NOTE: Set the correct path!
   '/opt/Xilinx/Vivado/version/data/ip/xpm/**/*.vhd' # NOTE: Set the correct path!
 ]
@@ -50,6 +50,8 @@ xpm.is_third_party = true
 
 altera_mf.files = [
   'C:/intelFPGA_pro/22.4/quartus/eda/sim_lib/altera_mf_components.vhd',
-  '/opt/intelFPGA/22.4/quartus/eda/sim_lib/altera_mf_components.vhd',
+  'C:/intelFPGA/23.1std/questa_fse/intel/vhdl/src/altera_mf/altera_mf_components.vhd',
+  '/opt/intelFPGA/22.4/quartus/eda/sim_lib/altera_mf_components.vhd', # NOTE: Set the correct path!
+  '/opt/intelFPGA/23.1std/questa_fse/intel/vhdl/src/altera_mf/altera_mf_components.vhd', # NOTE: Set the correct path!
 ]
 altera_mf.is_third_party = true

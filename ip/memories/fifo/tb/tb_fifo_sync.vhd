@@ -504,7 +504,7 @@ begin
 
             info("Test 9.2) Random write/read patterns" & LF);
             for cycle in 0 to 4 loop
-                -- Random number of writes (1-10)
+                -- Random number of writes (1 - 10)
                 num_writes := random.RandInt(1, 10);
 
                 for i in 0 to num_writes - 1 loop
