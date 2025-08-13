@@ -204,7 +204,8 @@ begin
                 else
                     next; -- Skip inactive chips
                 end if;
-                expected_spi_chip_select_n := (active_chip_select_n_index => '0', others => '1'); -- First chip should be selected
+                expected_spi_chip_select_n := (others => '1');
+                expected_spi_chip_select_n(active_chip_select_n_index) := '0'; -- Active chip should be selected
                 check_equal(got => spi_chip_select_n, expected => expected_spi_chip_select_n, msg => "spi_chip_select_n - Chip select should be active");
                 wait_tx_spi_clk_cycles(DATA_WIDTH);
             end loop;
