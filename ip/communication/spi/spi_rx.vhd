@@ -27,14 +27,15 @@ entity spi_rx is
         rx_data: out std_ulogic_vector;
         rx_data_valid: out std_ulogic
     );
+
+end entity;
+
+architecture behavioural of spi_rx is
     package spi_pkg_constrained is new work.spi_pkg
         generic map (
             DATA_WIDTH => rx_data'length,
             MSB_FIRST_AND_NOT_LSB => MSB_FIRST_AND_NOT_LSB
         );
-end entity;
-
-architecture behavioural of spi_rx is
     use spi_pkg_constrained.all;
 begin
     receiver: process (spi_clk)

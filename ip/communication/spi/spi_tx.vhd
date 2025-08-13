@@ -52,16 +52,14 @@ entity spi_tx is
 
         tx_is_ongoing: out std_ulogic
     );
+end entity;
 
-    -- NOTE: We've to constrain it here so that we've the access to the generic tx_data'length
+architecture behavioural of spi_tx is
     package spi_pkg_constrained is new work.spi_pkg
         generic map (
             DATA_WIDTH => tx_data'length,
             MSB_FIRST_AND_NOT_LSB => MSB_FIRST_AND_NOT_LSB
         );
-end entity;
-
-architecture behavioural of spi_tx is
     use spi_pkg_constrained.all;
 
     signal serial_data_out_internal: std_logic;
