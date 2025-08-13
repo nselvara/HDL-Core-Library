@@ -194,8 +194,8 @@ architecture own_behavioural_async_fifo of fifo_async is
     signal write_pointer_gray_sync: std_ulogic_vector(pointer_t'range);
     signal read_pointer_gray_sync: std_ulogic_vector(pointer_t'range);
 
-    signal write_address: unsigned(ADDRESS_WIDTH - 1 downto 0);
-    signal read_address: unsigned(ADDRESS_WIDTH - 1 downto 0);
+    signal write_address: std_ulogic_vector(ADDRESS_WIDTH - 1 downto 0);
+    signal read_address: std_ulogic_vector(ADDRESS_WIDTH - 1 downto 0);
 
     function binary_to_gray(binary: unsigned) return std_ulogic_vector is begin
         return std_ulogic_vector(binary xor ('0' & binary(binary'high downto 1)));
@@ -287,8 +287,8 @@ begin
         full <= '1' when pointers_msbs_are_different and addresses_msbs_are_different and lower_address_parts_are_equal else '0';
     end process;
 
-    write_address <= write_pointer_binary(write_address'range);
-    read_address <= read_pointer_binary(read_address'range);
+    write_address <= std_ulogic_vector(write_pointer_binary(write_address'range));
+    read_address <= std_ulogic_vector(read_pointer_binary(read_address'range));
 
     valid_flag_detect: process (aclr, read_clk)
     begin
@@ -304,9 +304,9 @@ begin
             write_clk => write_clk,
             write_enable => write_enable and not full,
             write_data => write_data,
-            write_address => std_ulogic_vector(write_address),
+            write_address => write_address,
             read_clk => read_clk,
             read_data => read_data,
-            read_address => std_ulogic_vector(read_address)
+            read_address => read_address
         );
 end architecture;
