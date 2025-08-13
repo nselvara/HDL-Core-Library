@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 """
-CI/CD test runner for VUnit tests - Vanilla VHDL only.
-This script runs tests without any vendor-specific libraries (Xilinx/Intel).
-It uses only the behavioral/technology-independent implementations.
+CI/CD test runner for VUnit tests with basic vendor library support.
+This script runs tests with basic Xilinx UNISIM library support for CI/CD environments.
+It excludes complex primitives that require full vendor tool installations.
 Author: N. Selvarajah
 """
 
@@ -14,8 +14,9 @@ from vhdl_utils.run_all_testbenches_lib import bcolours
 
 def run_all_testbenches():
     """
-    Run all testbenches using only vanilla VHDL (behavioral implementations).
-    No vendor libraries (Xilinx/Intel) are used - perfect for CI/CD environments.
+    Run all testbenches with basic Xilinx UNISIM library support.
+    Uses open-source UNISIM components for basic clock management and I/O.
+    Excludes complex primitives (like PLLs) that require full vendor libraries.
     """
 
     # Detect if running in CI mode
@@ -32,7 +33,9 @@ def run_all_testbenches():
             xunit_xml_path = sys.argv[xunit_index + 1]
 
     print("=== CI/CD Test Runner ===")
-    print("Running with vanilla VHDL (behavioral implementations only)")
+    print("Running with NVC VHDL simulator + behavioral models")
+    print("Strategy: VHDL behavioral models for Xilinx primitives (like PLLE2_BASE)")
+    print("Note: NVC cannot directly use Verilog primitives in VHDL code")
     print(f"Test path: {test_path}")
     print(f"CI Mode: {is_ci_mode}")
     if xunit_xml_path:
@@ -40,11 +43,8 @@ def run_all_testbenches():
     print()
 
     excluded_list = [
-        "tb_pll.vhd",  # Exclude PLL testbench (uses unisim library)
-        "pll.vhd",     # Exclude PLL implementation (uses unisim library)
-        "clock_enable.vhd",  # Exclude clock_enable testbench (uses unisim library)
-        "tb_fifo_async.vhd",  # Exclude FIFO async testbench (non-conformant VHDL statement)
-        "fifo_async.vhd"      # Exclude FIFO async implementation (non-conformant VHDL statement)
+        "tb_pll.vhd",  # Exclude PLL due to missing VHDL binding for PLLE2_BASE
+        "pll.vhd",     # Exclude PLL due to missing VHDL binding for PLLE2_BASE
     ]
 
     returncode = run_all_testbenches_lib(
@@ -55,10 +55,10 @@ def run_all_testbenches():
         compile_only=False,
         clean=False,
         debug=False,
-        use_xilinx_libs=False,          # Disabled for CI/CD
-        use_intel_altera_libs=False,    # Disabled for CI/CD
-        excluded_list=excluded_list,    # Exclude specific testbenches that require unisim library and fifo_async uses non-conformant VHDL statement
-        xunit_xml=xunit_xml_path        # Forward the xunit-xml argument
+        use_xilinx_libs=True,
+        use_intel_altera_libs=True,
+        excluded_list=excluded_list,    # Using behavioral models for simulation
+        xunit_xml=xunit_xml_path
     )
 
     print()

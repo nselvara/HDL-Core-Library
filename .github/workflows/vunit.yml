@@ -32,29 +32,54 @@ jobs:
         with:
           version: latest
       - run: |
+          # Setup Quartus/Intel libraries
           git clone https://github.com/nselvara/gplgpu
           cd gplgpu
-          mkdir -p /opt/intelFPGA/20.1/quartus/eda/
-          cp -r ./hdl/sim_lib/ /opt/intelFPGA/20.1/quartus/eda/
-
-          # ls /opt/intelFPGA/20.1/quartus/eda/sim_lib/
+          sudo mkdir -p /opt/intelFPGA/20.1/quartus/eda/
+          sudo cp -r ./hdl/sim_lib/ /opt/intelFPGA/20.1/quartus/eda/
 
           # Create empty files to avoid errors with NVC
-          touch $QUARTUS_ROOTDIR/eda/sim_lib/fiftyfivenm_atoms.vhd
-          touch $QUARTUS_ROOTDIR/eda/sim_lib/fiftyfivenm_components.vhd
-          touch $QUARTUS_ROOTDIR/eda/sim_lib/cycloneive_atoms.vhd
-          touch $QUARTUS_ROOTDIR/eda/sim_lib/cyclonev_atoms.vhd
-          touch $QUARTUS_ROOTDIR/eda/sim_lib/cyclonev_components.vhd
-          touch $QUARTUS_ROOTDIR/eda/sim_lib/cyclone10lp_atoms.vhd
-          touch $QUARTUS_ROOTDIR/eda/sim_lib/cyclone10lp_components.vhd
-          touch $QUARTUS_ROOTDIR/eda/sim_lib/cyclonev_hssi_atoms.vhd
-          touch $QUARTUS_ROOTDIR/eda/sim_lib/cyclonev_hssi_components.vhd
+          sudo touch $QUARTUS_ROOTDIR/eda/sim_lib/fiftyfivenm_atoms.vhd
+          sudo touch $QUARTUS_ROOTDIR/eda/sim_lib/fiftyfivenm_components.vhd
+          sudo touch $QUARTUS_ROOTDIR/eda/sim_lib/cycloneive_atoms.vhd
+          sudo touch $QUARTUS_ROOTDIR/eda/sim_lib/cyclonev_atoms.vhd
+          sudo touch $QUARTUS_ROOTDIR/eda/sim_lib/cyclonev_components.vhd
+          sudo touch $QUARTUS_ROOTDIR/eda/sim_lib/cyclone10lp_atoms.vhd
+          sudo touch $QUARTUS_ROOTDIR/eda/sim_lib/cyclone10lp_components.vhd
+          sudo touch $QUARTUS_ROOTDIR/eda/sim_lib/cyclonev_hssi_atoms.vhd
+          sudo touch $QUARTUS_ROOTDIR/eda/sim_lib/cyclonev_hssi_components.vhd
+
+          cd ..
+
+          # Setup Xilinx/UNISIM libraries using GRLIB clone
+          git clone https://github.com/nselvara/grlib
+          
+          sudo mkdir -p /opt/xilinx/Vivado/2023.1/data/vhdl/src/unisims/retarget
+          sudo mkdir -p /opt/xilinx/Vivado/2023.1/data/vhdl/src/unimacro
+          sudo mkdir -p /opt/xilinx/Vivado/2023.1/data/vhdl/src/retarget
+          sudo mkdir -p /opt/xilinx/Vivado/2023.1/data/vhdl/src/unifast/primitive
+
+          # Copy UNISIM VHDL files from GRLIB clone
+          sudo cp grlib/lib/tech/unisim/ise/unisim_VPKG.vhd /opt/xilinx/Vivado/2023.1/data/vhdl/src/unisims/
+          sudo cp grlib/lib/tech/unisim/ise/unisim_VCOMP.vhd /opt/xilinx/Vivado/2023.1/data/vhdl/src/unisims/
+
+          # Create symlink for NVC install script compatibility
+          sudo ln -s unisim_VCOMP.vhd /opt/xilinx/Vivado/2023.1/data/vhdl/src/unisims/unisim_retarget_VCOMP.vhd
+
+          # Create empty vhdl_analyze_order files (required by NVC)
+          sudo touch /opt/xilinx/Vivado/2023.1/data/vhdl/src/unisims/vhdl_analyze_order
+          sudo touch /opt/xilinx/Vivado/2023.1/data/vhdl/src/unisims/retarget/vhdl_analyze_order
+          sudo touch /opt/xilinx/Vivado/2023.1/data/vhdl/src/unimacro/vhdl_analyze_order
+          sudo touch /opt/xilinx/Vivado/2023.1/data/vhdl/src/retarget/vhdl_analyze_order
+          sudo touch /opt/xilinx/Vivado/2023.1/data/vhdl/src/unifast/primitive/vhdl_analyze_order
 
           nvc --version    # NVC binary added to path
           nvc --install xpm_vhdl
           nvc --install quartus
+          nvc --install vivado
         env:
           QUARTUS_ROOTDIR: "/opt/intelFPGA/20.1/quartus"
+          XILINX_VIVADO: "/opt/xilinx/Vivado/2023.1"
 
       - name: Install VUnit
         run: |
@@ -71,13 +96,15 @@ jobs:
       - name: Run VUnit tests
         run: |
           rm -rf ./gplgpu
+          rm -rf ./grlib
           python ./ip/test_runner_ci_cd.py --xunit-xml=test-reports/vunit_results.xml
         env:
           VUNIT_CI_MODE: "true"
           QUARTUS_ROOTDIR: "/opt/intelFPGA/20.1/quartus"
+          XILINX_VIVADO: "/opt/xilinx/Vivado/2023.1"
         timeout-minutes: 15  # Test execution timeout
 
-      - name: Generate XUnit Viewer Report  
+      - name: Generate XUnit Viewer Report
         uses: AutoModality/action-xunit-viewer@v1
         if: always()
         with:
