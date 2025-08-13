@@ -39,6 +39,14 @@ def run_all_testbenches():
         print(f"XUnit XML output: {xunit_xml_path}")
     print()
 
+    excluded_list = [
+        "tb_pll.vhd",  # Exclude PLL testbench (uses unisim library)
+        "pll.vhd",     # Exclude PLL implementation (uses unisim library)
+        "clock_enable.vhd",  # Exclude clock_enable testbench (uses unisim library)
+        "tb_fifo_async.vhd",  # Exclude FIFO async testbench (non-conformant VHDL statement)
+        "fifo_async.vhd"      # Exclude FIFO async implementation (non-conformant VHDL statement)
+    ]
+
     returncode = run_all_testbenches_lib(
         path=test_path,
         tb_pattern="**",
@@ -49,7 +57,7 @@ def run_all_testbenches():
         debug=False,
         use_xilinx_libs=False,          # Disabled for CI/CD
         use_intel_altera_libs=False,    # Disabled for CI/CD
-        excluded_list=["tb_pll.vhd", "pll.vhd", "tb_fifo_async.vhd", "fifo_async.vhd"],  # Exclude specific testbenches that require unisim library and fifo_async uses non-conformant VHDL statement
+        excluded_list=excluded_list,    # Exclude specific testbenches that require unisim library and fifo_async uses non-conformant VHDL statement
         xunit_xml=xunit_xml_path        # Forward the xunit-xml argument
     )
 
