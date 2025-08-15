@@ -196,7 +196,6 @@ begin
             check_equal(got => tx_is_ongoing, expected => '1', msg => "tx_is_ongoing - TX should be active");
             tx_data_valid <= '0';
             wait_spi_clk_cycles(1);
-            wait_chip_select_n_cycles(1);
 
             for i in 0 to CHIP_COUNT - 1 loop
                 if selected_chips(i) then
@@ -204,8 +203,12 @@ begin
                 else
                     next; -- Skip inactive chips
                 end if;
+
                 expected_spi_chip_select_n := (others => '1');
                 expected_spi_chip_select_n(active_chip_select_n_index) := '0'; -- Active chip should be selected
+
+                wait_chip_select_n_cycles(3);
+
                 check_equal(got => spi_chip_select_n, expected => expected_spi_chip_select_n, msg => "spi_chip_select_n - Chip select should be active");
                 wait_tx_spi_clk_cycles(DATA_WIDTH);
             end loop;

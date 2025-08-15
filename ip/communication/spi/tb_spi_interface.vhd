@@ -347,7 +347,7 @@ begin
                     next; -- Skip inactive chips
                 end if;
 
-                wait_chip_select_n_cycles(1);
+                wait_chip_select_n_cycles(3);
 
                 expected_spi_chip_select_n := (others => '1');
                 expected_spi_chip_select_n(active_chip_select_n_index) := '0';
@@ -435,8 +435,9 @@ begin
                     next; -- Skip inactive chips
                 end if;
 
-                -- We can't just expect that only one chip is selected, as the previous chip might still be selected depending on the clock phase/polarity
-                check_equal(got => spi_chip_select_n(chip_idx), expected => '0', msg => "spi_chip_select_n - Chip " & to_string(chip_idx) & " should be selected");
+                expected_spi_chip_select_n := (others => '1');
+                expected_spi_chip_select_n(active_chip_select_n_index) := '0'; -- Active chip
+                check_equal(got => spi_chip_select_n, expected => expected_spi_chip_select_n, msg => "spi_chip_select_n - Chip " & to_string(chip_idx) & " should be selected");
 
                 reset_bit_index(bit_index);
                 -- Check each bit transmission for this chip
@@ -445,6 +446,8 @@ begin
                     wait_tx_spi_clk_cycles(1);
                     update_bit_index(bit_index);
                 end loop;
+
+                wait_chip_select_n_cycles(3);
             end loop;
 
             wait_spi_clk_cycles(2);
@@ -468,8 +471,9 @@ begin
                         next; -- Skip inactive chips
                     end if;
 
-                    -- We can't just expect that only one chip is selected, as the previous chip might still be selected depending on the clock phase/polarity
-                    check_equal(got => spi_chip_select_n(chip_idx), expected => '0', msg => "spi_chip_select_n - Word " & to_string(word_idx) & " Chip " & to_string(chip_idx) & " should be selected");
+                    expected_spi_chip_select_n := (others => '1');
+                    expected_spi_chip_select_n(active_chip_select_n_index) := '0'; -- Active chip
+                    check_equal(got => spi_chip_select_n, expected => expected_spi_chip_select_n, msg => "spi_chip_select_n - Word " & to_string(word_idx) & " Chip " & to_string(chip_idx) & " should be selected");
 
                     reset_bit_index(bit_index);
                     -- Check each bit transmission for this chip and word
@@ -478,6 +482,8 @@ begin
                         wait_tx_spi_clk_cycles(1);
                         update_bit_index(bit_index);
                     end loop;
+
+                    wait_chip_select_n_cycles(3);
                 end loop;
             end loop;
 

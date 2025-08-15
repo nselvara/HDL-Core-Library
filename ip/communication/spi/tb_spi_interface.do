@@ -34,7 +34,7 @@ add wave -noupdate /tb_spi_interface/loopback_enabled
 add wave -noupdate /tb_spi_interface/spi_clk_enable
 add wave -noupdate /tb_spi_interface/simulation_done
 TreeUpdate [SetDefaultTree]
-WaveRestoreCursors {{Cursor 1} {4690000 ps} 0}
+WaveRestoreCursors {{Cursor 1} {4776561 ps} 0}
 quietly wave cursor active 1
 configure wave -namecolwidth 209
 configure wave -valuecolwidth 100
@@ -50,4 +50,4 @@ configure wave -griddelta 40
 configure wave -timeline 0
 configure wave -timelineunits ns
 update
-WaveRestoreZoom {0 ps} {7655550 ps}
+WaveRestoreZoom {0 ps} {8726550 ps}

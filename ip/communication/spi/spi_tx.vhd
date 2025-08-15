@@ -66,7 +66,7 @@ architecture behavioural of spi_tx is
     signal spi_chip_select_n_internal: spi_chip_select_n'subtype;
 begin
     spi_fsm: process (spi_clk_in)
-        type state_t is (idle, transmission);
+        type state_t is (idle, transmission, wait_for_chip_selects_deassertion);
 
         constant CHIP_INDEX_OUT_OF_RANGE: natural := selected_chips'length;
 
@@ -125,12 +125,20 @@ begin
 
                             if current_chip_index >= CHIP_INDEX_OUT_OF_RANGE then
                                 state := idle; -- Finished transmission for all chips
+                            else
+                                state := wait_for_chip_selects_deassertion;
                             end if;
                         end if;
 
                         -- This construct should optimise current_chip_index and spi_chip_select_n_internal away
                         if CONTROLLER_AND_NOT_PERIPHERAL or (not CONTROLLER_AND_NOT_PERIPHERAL and (and(spi_chip_select_n) = '0')) then
                             update_bit_index(bit_index);
+                        end if;
+                    when wait_for_chip_selects_deassertion =>
+                        tx_is_ongoing <= '1';
+
+                        if and(spi_chip_select_n) = '1' then
+                            state := transmission;
                         end if;
                     when others =>
                         state := idle;
