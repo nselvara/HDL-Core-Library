@@ -32,6 +32,8 @@ entity spi_tx is
     generic (
         SPI_CLK_POLARITY: bit := '0'; -- Clock polarity
         SPI_CLK_PHASE: bit := '0'; -- Clock phase
+        SPI_CHIPS_AMOUNT: natural := 1;
+        DATA_WIDTH: natural := 8;
         CONTROLLER_AND_NOT_PERIPHERAL: boolean := true;
         MSB_FIRST_AND_NOT_LSB: boolean := true;
         ENABLE_INTERNAL_CLOCK_GATING: boolean := true;
@@ -43,12 +45,12 @@ entity spi_tx is
 
         selected_chips: in std_ulogic_vector;
 
-        tx_data: in std_ulogic_vector;
+        tx_data: in std_ulogic_vector(DATA_WIDTH - 1 downto 0);
         tx_data_valid: in std_ulogic;
 
         spi_clk_out: out std_ulogic;
         serial_data_out: out std_logic; -- For tri-state output
-        spi_chip_select_n: inout std_ulogic_vector;
+        spi_chip_select_n: inout std_ulogic_vector(SPI_CHIPS_AMOUNT - 1 downto 0);
 
         tx_is_ongoing: out std_ulogic
     );
@@ -57,7 +59,7 @@ end entity;
 architecture behavioural of spi_tx is
     package spi_pkg_constrained is new work.spi_pkg
         generic map (
-            DATA_WIDTH => tx_data'length,
+            DATA_WIDTH => DATA_WIDTH,
             MSB_FIRST_AND_NOT_LSB => MSB_FIRST_AND_NOT_LSB
         );
     use spi_pkg_constrained.all;

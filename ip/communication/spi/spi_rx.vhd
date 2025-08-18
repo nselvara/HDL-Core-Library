@@ -15,6 +15,7 @@ entity spi_rx is
     generic (
         SPI_CLK_POLARITY: bit := '0'; -- Clock polarity
         SPI_CLK_PHASE: bit := '0'; -- Clock phase
+        DATA_WIDTH: natural := 8;
         MSB_FIRST_AND_NOT_LSB: boolean := true
     );
     port (
@@ -24,16 +25,15 @@ entity spi_rx is
         serial_data_in: in std_logic;
         spi_chip_select_n: in std_ulogic;
 
-        rx_data: out std_ulogic_vector;
+        rx_data: out std_ulogic_vector(DATA_WIDTH - 1 downto 0);
         rx_data_valid: out std_ulogic
     );
-
 end entity;
 
 architecture behavioural of spi_rx is
     package spi_pkg_constrained is new work.spi_pkg
         generic map (
-            DATA_WIDTH => rx_data'length,
+            DATA_WIDTH => DATA_WIDTH,
             MSB_FIRST_AND_NOT_LSB => MSB_FIRST_AND_NOT_LSB
         );
     use spi_pkg_constrained.all;

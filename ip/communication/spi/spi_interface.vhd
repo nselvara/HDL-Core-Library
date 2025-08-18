@@ -34,6 +34,8 @@ entity spi_interface is
     generic (
         SPI_CLK_POLARITY: bit := '0'; -- Clock polarity
         SPI_CLK_PHASE: bit := '0'; -- Clock phase
+        SPI_CHIPS_AMOUNT: natural := 1; -- Number of SPI chips
+        DATA_WIDTH: natural := 8; -- Width of the data bus
         CONTROLLER_AND_NOT_PERIPHERAL: boolean := true;
         MSB_FIRST_AND_NOT_LSB: boolean := true;
         ENABLE_INTERNAL_CLOCK_GATING: boolean := true;
@@ -45,16 +47,16 @@ entity spi_interface is
 
         selected_chips: in std_ulogic_vector;
 
-        tx_data: in std_ulogic_vector;
+        tx_data: in std_ulogic_vector(DATA_WIDTH - 1 downto 0);
         tx_data_valid: in std_ulogic;
 
-        rx_data: out std_ulogic_vector;
+        rx_data: out std_ulogic_vector(DATA_WIDTH - 1 downto 0);
         rx_data_valid: out std_ulogic;
 
         spi_clk_out: out std_ulogic;
         serial_data_out: out std_logic;
         serial_data_in: in std_ulogic;
-        spi_chip_select_n: inout std_ulogic_vector;
+        spi_chip_select_n: inout std_ulogic_vector(SPI_CHIPS_AMOUNT - 1 downto 0);
 
         tx_is_ongoing: out std_ulogic
     );
@@ -66,6 +68,8 @@ begin
         generic map (
             SPI_CLK_POLARITY => SPI_CLK_POLARITY,
             SPI_CLK_PHASE => SPI_CLK_PHASE,
+            SPI_CHIPS_AMOUNT => SPI_CHIPS_AMOUNT,
+            DATA_WIDTH => DATA_WIDTH,
             CONTROLLER_AND_NOT_PERIPHERAL => CONTROLLER_AND_NOT_PERIPHERAL,
             MSB_FIRST_AND_NOT_LSB => MSB_FIRST_AND_NOT_LSB,
             ENABLE_INTERNAL_CLOCK_GATING => ENABLE_INTERNAL_CLOCK_GATING,
@@ -87,6 +91,7 @@ begin
         generic map (
             SPI_CLK_POLARITY => SPI_CLK_POLARITY,
             SPI_CLK_PHASE => SPI_CLK_PHASE,
+            DATA_WIDTH => DATA_WIDTH,
             MSB_FIRST_AND_NOT_LSB => MSB_FIRST_AND_NOT_LSB
         )
         port map (

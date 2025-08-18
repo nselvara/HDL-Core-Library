@@ -49,8 +49,8 @@ architecture tb of tb_spi_rx is
     -------------------------------------------------------------
     constant SPI_CLK_POLARITY: bit := '0';
     constant SPI_CLK_PHASE: bit := '0';
-    constant MSB_FIRST_AND_NOT_LSB: boolean := true;
     constant DATA_WIDTH: positive := 8;
+    constant MSB_FIRST_AND_NOT_LSB: boolean := true;
 
     package spi_pkg_constrained is new work.spi_pkg
         generic map (
@@ -65,7 +65,7 @@ architecture tb of tb_spi_rx is
     signal serial_data_in: std_logic := '0';
     signal spi_chip_select_n: std_ulogic := '1';
 
-    signal rx_data: std_ulogic_vector(data_range_t);
+    signal rx_data: std_ulogic_vector(DATA_WIDTH - 1 downto 0) := (others => '0');
     signal rx_data_valid: std_ulogic;
     -------------------------------------------------------------
 begin
@@ -103,7 +103,7 @@ begin
     checker: process
         variable random: RandomPType;
         variable current_bit_index: data_range_t;
-        variable expected_data: std_ulogic_vector(data_range_t);
+        variable expected_data: std_ulogic_vector(DATA_WIDTH - 1 downto 0);
 
         procedure wait_spi_clk_cycles(cycles: natural) is begin
             for i in 0 to cycles - 1 loop
@@ -211,7 +211,7 @@ begin
         procedure random_test is
             constant TEST_REPERTITIONS: natural := 1000;
 
-            variable random_data: std_ulogic_vector(data_range_t);
+            variable random_data: std_ulogic_vector(DATA_WIDTH - 1 downto 0);
             variable random_spi_chip_select_n: std_ulogic;
             variable spi_chip_select_n_reg: std_ulogic;
         begin
@@ -283,6 +283,7 @@ begin
         generic map (
             SPI_CLK_POLARITY => SPI_CLK_POLARITY,
             SPI_CLK_PHASE => SPI_CLK_PHASE,
+            DATA_WIDTH => DATA_WIDTH,
             MSB_FIRST_AND_NOT_LSB => MSB_FIRST_AND_NOT_LSB
         )
         port map (
