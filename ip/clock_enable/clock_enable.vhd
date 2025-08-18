@@ -22,9 +22,6 @@ use ieee.std_logic_1164.all;
 library unisim;
 use unisim.vcomponents.all;
 
-library altera_mf;
-use altera_mf.altera_mf_components.all;
-
 entity clock_enable is
     generic (
         -- Set to true for direct clock gating using the internal implementation.
