@@ -28,13 +28,14 @@ library unisim;
 use unisim.vcomponents.all;
 
 architecture xilinx_behavioural of pll is
+    constant IN_CLK_PERIOD_NS: real := IN_CLK_PERIOD_PS / 1000.0;
     signal out_clk_f_b: std_ulogic;
     signal pll_clks_0: std_ulogic;
     signal pll_clks_1: std_ulogic;
 begin
     pll_inst: PLLE2_BASE
         generic map (
-            CLKIN1_PERIOD => IN_CLK_PERIOD_PS,
+            CLKIN1_PERIOD => IN_CLK_PERIOD_NS,
             CLKFBOUT_MULT => CLK_MULTIPLY,
             CLKOUT0_DIVIDE => OUT_CLK_0_DIVIDE,
             CLKOUT1_DIVIDE => OUT_CLK_1_DIVIDE,

@@ -37,16 +37,16 @@ architecture tb of tb_pll is
     constant SIMULATION_TIMEOUT_TIME: time := 100 us; -- Need longer time to measure frequencies
     constant ENABLE_DEBUG_PRINT: boolean := false;
 
-    constant IN_CLK_PERIOD_PS: real := 10.0; -- 10ns = 100MHz
-    constant IN_CLK_FREQUENCY: real := 100.0E6;
+    constant IN_CLK_FREQUENCY: frequency_t := 100 MHz; -- 100MHz input clock frequency
+    constant IN_CLK_PERIOD_PS: real := 10.0**12 / to_real(IN_CLK_FREQUENCY);
 
     constant CLK_MULTIPLY: positive := 8;
     constant CLK_DIVIDE: positive := 1;
     constant OUT_CLK_0_DIVIDE: positive := 4; -- Should result in 200MHz
     constant OUT_CLK_1_DIVIDE: positive := 10; -- Should result in 80MHz
 
-    constant EXPECTED_OUT0_PERIOD: time := (1.0 / IN_CLK_FREQUENCY) * (real(OUT_CLK_0_DIVIDE) / real(CLK_MULTIPLY)) * real(CLK_DIVIDE) * 1 sec;
-    constant EXPECTED_OUT1_PERIOD: time := (1.0 / IN_CLK_FREQUENCY) * (real(OUT_CLK_1_DIVIDE) / real(CLK_MULTIPLY)) * real(CLK_DIVIDE) * 1 sec;
+    constant EXPECTED_OUT0_PERIOD: time := to_time(IN_CLK_FREQUENCY) * (real(OUT_CLK_0_DIVIDE) / real(CLK_MULTIPLY)) * real(CLK_DIVIDE);
+    constant EXPECTED_OUT1_PERIOD: time := to_time(IN_CLK_FREQUENCY) * (real(OUT_CLK_1_DIVIDE) / real(CLK_MULTIPLY)) * real(CLK_DIVIDE);
 
     signal out_clk_0_edges: natural := 0;
     signal out_clk_1_edges: natural := 0;
@@ -67,7 +67,7 @@ begin
     ------------------------------------------------------------
     -- CLOCK Generation
     ------------------------------------------------------------
-    generate_advanced_clock(in_clk, IN_CLK_FREQUENCY, 0 fs, in_clk_enable);
+    generate_advanced_clock(in_clk, to_real(IN_CLK_FREQUENCY), 0 fs, in_clk_enable);
     ------------------------------------------------------------
 
     ------------------------------------------------------------
