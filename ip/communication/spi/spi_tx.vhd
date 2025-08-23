@@ -149,29 +149,56 @@ begin
         end if;
     end process;
 
+    -- NOTE: Xilinx doesn't recognise generic functions that have the same definitions like rising_edge/falling_edge, thus, it creates latches instead of FFs
+    -- So we've to manually state for which SPI mode at what edge has to be sampled.
+    -- With Intel the previous solution worked perfectly
     serial_data_out_and_chip_select_alignment: block
         signal spi_chip_select_n_assertion: spi_chip_select_n'subtype;
         signal spi_chip_select_n_deassertion: spi_chip_select_n'subtype;
     begin
-        serial_data_out_alignment: process (all)
-        begin
-            if tx_active_edge(spi_clk_in, SPI_CLK_POLARITY, SPI_CLK_PHASE) then
-                serial_data_out <= serial_data_out_internal;
-            end if;
-        end process;
+        serial_data_out_alignment: case SPI_CLK_POLARITY & SPI_CLK_PHASE generate
+            when "00" | "11" =>
+                alignment: process (spi_clk_in)
+                begin
+                    if falling_edge(spi_clk_in) then
+                        serial_data_out <= serial_data_out_internal;
+                    end if;
+                end process;
+            when "01" =>
+                postpone: process (spi_clk_in)
+                begin
+                    if rising_edge(spi_clk_in) then
+                        serial_data_out <= serial_data_out_internal;
+                    end if;
+                end process;
+            when "10" =>
+                pass_through: serial_data_out <= serial_data_out_internal;
+        end generate;
 
-        chip_select_n_alignment: process (all)
-        begin
-            if active_edge_chip_select_n_assertion(spi_clk_in, SPI_CLK_POLARITY) then
-                spi_chip_select_n_assertion <= spi_chip_select_n_internal;
-            end if;
+        chip_select_n_driver: if CONTROLLER_AND_NOT_PERIPHERAL generate
+            spi_chip_select_n_alignment: case SPI_CLK_POLARITY generate
+                when '0' =>
+                    alignment: process (spi_clk_in)
+                    begin
+                        if falling_edge(spi_clk_in) then
+                            spi_chip_select_n_assertion <= spi_chip_select_n_internal;
+                        elsif rising_edge(spi_clk_in) then
+                            spi_chip_select_n_deassertion <= spi_chip_select_n_internal;
+                        end if;
+                    end process;
+                when '1' =>
+                    alignment: process (spi_clk_in)
+                    begin
+                        pass_through: spi_chip_select_n_assertion <= spi_chip_select_n_internal;
 
-            if active_edge_chip_select_n_deassertion(spi_clk_in, SPI_CLK_POLARITY) then
-                spi_chip_select_n_deassertion <= spi_chip_select_n_internal;
-            end if;
+                        if falling_edge(spi_clk_in) then
+                            spi_chip_select_n_deassertion <= spi_chip_select_n_internal;
+                        end if;
+                    end process;
+            end generate;
 
             spi_chip_select_n <= spi_chip_select_n_assertion and spi_chip_select_n_deassertion;
-        end process;
+        end generate;
     end block;
 
     -- SPI clock driver implementation with vendor-specific considerations

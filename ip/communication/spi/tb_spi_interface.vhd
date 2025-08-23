@@ -109,49 +109,25 @@ begin
         signal spi_chip_select_n_assertion: spi_chip_select_n'subtype;
         signal spi_chip_select_n_deassertion: spi_chip_select_n'subtype;
     begin
-        serial_data_out_alignment: case SPI_CLK_POLARITY & SPI_CLK_PHASE generate
-            when "00" | "11" =>
-                alignment: process (spi_clk_in)
-                begin
-                    if falling_edge(spi_clk_in) then
-                        serial_data_out_expected <= serial_data_out_internal;
-                    end if;
-                end process;
-            when "01" =>
-                postpone: process (spi_clk_in)
-                begin
-                    if rising_edge(spi_clk_in) then
-                        serial_data_out_expected <= serial_data_out_internal;
-                    end if;
-                end process;
-            when "10" =>
-                pass_through: serial_data_out_expected <= serial_data_out_internal;
-        end generate;
+        serial_data_out_alignment: process (all)
+        begin
+            if tx_active_edge(spi_clk_in, SPI_CLK_POLARITY, SPI_CLK_PHASE) then
+                serial_data_out_expected <= serial_data_out_internal;
+            end if;
+        end process;
 
-        chip_select_n_driver: if CONTROLLER_AND_NOT_PERIPHERAL generate
-            spi_chip_select_n_alignment: case SPI_CLK_POLARITY generate
-                when '0' =>
-                    alignment: process (spi_clk_in)
-                    begin
-                        if falling_edge(spi_clk_in) then
-                            spi_chip_select_n_assertion <= spi_chip_select_n_internal;
-                        elsif rising_edge(spi_clk_in) then
-                            spi_chip_select_n_deassertion <= spi_chip_select_n_internal;
-                        end if;
-                    end process;
-                when '1' =>
-                    alignment: process (spi_clk_in)
-                    begin
-                        pass_through: spi_chip_select_n_assertion <= spi_chip_select_n_internal;
+        chip_select_n_alignment: process (all)
+        begin
+            if active_edge_chip_select_n_assertion(spi_clk_in, SPI_CLK_POLARITY) then
+                spi_chip_select_n_assertion <= spi_chip_select_n_internal;
+            end if;
 
-                        if falling_edge(spi_clk_in) then
-                            spi_chip_select_n_deassertion <= spi_chip_select_n_internal;
-                        end if;
-                    end process;
-            end generate;
+            if active_edge_chip_select_n_deassertion(spi_clk_in, SPI_CLK_POLARITY) then
+                spi_chip_select_n_deassertion <= spi_chip_select_n_internal;
+            end if;
 
             spi_chip_select_n_expected <= spi_chip_select_n_assertion and spi_chip_select_n_deassertion;
-        end generate;
+        end process;
     end block;
     ------------------------------------------------------------
 
