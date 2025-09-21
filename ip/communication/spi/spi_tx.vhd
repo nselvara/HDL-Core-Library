@@ -32,7 +32,6 @@ entity spi_tx is
     generic (
         SPI_CLK_POLARITY: bit := '0'; -- Clock polarity
         SPI_CLK_PHASE: bit := '0'; -- Clock phase
-        SPI_CHIPS_AMOUNT: natural := 1;
         DATA_WIDTH: natural := 8;
         CONTROLLER_AND_NOT_PERIPHERAL: boolean := true;
         MSB_FIRST_AND_NOT_LSB: boolean := true;
@@ -43,14 +42,13 @@ entity spi_tx is
         spi_clk_in: in std_ulogic;
         rst_n: in std_ulogic;
 
-        selected_chips: in std_ulogic_vector;
-
         tx_data: in std_ulogic_vector(DATA_WIDTH - 1 downto 0);
         tx_data_valid: in std_ulogic;
+        tx_data_ack: out std_ulogic;
 
         spi_clk_out: out std_ulogic;
         serial_data_out: out std_logic; -- For tri-state output
-        spi_chip_select_n: inout std_ulogic_vector(SPI_CHIPS_AMOUNT - 1 downto 0);
+        spi_chip_select_n: inout std_ulogic;
 
         tx_is_ongoing: out std_ulogic
     );
@@ -65,88 +63,45 @@ architecture behavioural of spi_tx is
     use spi_pkg_constrained.all;
 
     signal serial_data_out_internal: std_logic;
-    signal spi_chip_select_n_internal: spi_chip_select_n'subtype;
+    signal spi_chip_select_n_internal: std_ulogic;
 begin
-    spi_fsm: process (spi_clk_in)
-        type state_t is (idle, transmission, wait_for_chip_selects_deassertion);
-
-        constant CHIP_INDEX_OUT_OF_RANGE: natural := selected_chips'length;
-
-        variable state: state_t;
-
+    spi_tx_logic: process(spi_clk_in)
         variable bit_index: natural range 0 to tx_data'subtype'high;
-        variable current_chip_index: natural range 0 to CHIP_INDEX_OUT_OF_RANGE;
 
-        variable selected_chips_reg: selected_chips'subtype;
         variable tx_data_reg: tx_data'subtype;
-
-        -- Select only one chip at a time
-        impure function select_next_chip_index return natural is begin
-            if current_chip_index >= CHIP_INDEX_OUT_OF_RANGE then
-                return get_lowest_active_bit(selected_chips);
-            end if;
-
-            for i in spi_chip_select_n'subtype'low to spi_chip_select_n'subtype'high loop
-                current_chip_index := current_chip_index + 1;
-                -- Out of range or found the next active chip
-                exit when current_chip_index >= CHIP_INDEX_OUT_OF_RANGE or (?? selected_chips_reg(current_chip_index));
-            end loop;
-
-            return current_chip_index;
-        end function;
+        variable tx_started: boolean := false;
     begin
+        -- NOTE: Order of the operations is important here
         if rising_edge(spi_clk_in) then
-            tx_is_ongoing <= '0';
             serial_data_out_internal <= 'Z';
-            spi_chip_select_n_internal <= (others => '1');
+            tx_data_ack <= '0';
+            spi_chip_select_n_internal <= '1';
 
             if rst_n = '0' then
-                state := idle;
-                current_chip_index := CHIP_INDEX_OUT_OF_RANGE;
                 reset_bit_index(bit_index);
+                tx_started := false;
             else
-                case state is
-                    when idle =>
-                        selected_chips_reg := selected_chips;
+                if (?? tx_data_valid) and not tx_started then
+                    tx_data_ack <= '1';
+                    tx_data_reg := tx_data;
+                    tx_started := true;
+                    reset_bit_index(bit_index);
+                end if;
 
-                        if tx_data_valid then
-                            tx_data_reg := tx_data;
-                            current_chip_index := select_next_chip_index;
+                if tx_started then
+                    spi_chip_select_n_internal <= '0';
+                    serial_data_out_internal <= tx_data_reg(bit_index);
 
-                            if current_chip_index /= CHIP_INDEX_OUT_OF_RANGE then
-                                state := transmission;
-                            end if;
-                        end if;
-                    when transmission =>
-                        tx_is_ongoing <= '1';
-                        serial_data_out_internal <= tx_data_reg(bit_index);
-                        spi_chip_select_n_internal(current_chip_index) <= '0';
-
-                        if last_bit_index(bit_index) then
-                            current_chip_index := select_next_chip_index; -- Move to the next chip
-
-                            if current_chip_index >= CHIP_INDEX_OUT_OF_RANGE then
-                                state := idle; -- Finished transmission for all chips
-                            else
-                                state := wait_for_chip_selects_deassertion;
-                            end if;
-                        end if;
-
-                        -- This construct should optimise current_chip_index and spi_chip_select_n_internal away
-                        if CONTROLLER_AND_NOT_PERIPHERAL or (not CONTROLLER_AND_NOT_PERIPHERAL and (and(spi_chip_select_n) = '0')) then
-                            update_bit_index(bit_index);
-                        end if;
-                    when wait_for_chip_selects_deassertion =>
-                        tx_is_ongoing <= '1';
-
-                        if and(spi_chip_select_n) = '1' then
-                            state := transmission;
-                        end if;
-                    when others =>
-                        state := idle;
-                end case;
+                    if last_bit_index(bit_index) then
+                        tx_started := false;
+                    elsif CONTROLLER_AND_NOT_PERIPHERAL or (not CONTROLLER_AND_NOT_PERIPHERAL and (spi_chip_select_n = '0')) then
+                        update_bit_index(bit_index);
+                    end if;
+                end if;
             end if;
         end if;
+
+        tx_is_ongoing <= '1' when tx_started else '0';
     end process;
 
     -- NOTE: Xilinx doesn't recognise generic functions that have the same definitions like rising_edge/falling_edge, thus, it creates latches instead of FFs
@@ -187,7 +142,7 @@ begin
                         end if;
                     end process;
                 when '1' =>
-                    alignment: process (spi_clk_in)
+                    alignment: process (spi_clk_in, spi_chip_select_n_internal)
                     begin
                         pass_through: spi_chip_select_n_assertion <= spi_chip_select_n_internal;
 
@@ -217,7 +172,7 @@ begin
             )
             port map (
                 clk_in => spi_clk_in,
-                clk_enable => not (and(spi_chip_select_n)),
+                clk_enable => not spi_chip_select_n,
                 clk_out => spi_clk_out
             );
     else generate
