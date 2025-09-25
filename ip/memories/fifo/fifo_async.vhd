@@ -31,7 +31,10 @@ entity fifo_async is
         read_data_valid: out std_ulogic;
         full: out std_ulogic;
         empty: out std_ulogic;
-        words_stored: out natural range 0 to 2**FIFO_DEPTH_IN_BITS
+        words_stored: out natural range 0 to 2**FIFO_DEPTH_IN_BITS;
+
+        -- Reset read pointer for data replay (keeps write pointer intact)
+        reset_read_pointer: in std_ulogic := '0'
     );
 
     constant FIFO_DEPTH: natural := 2**FIFO_DEPTH_IN_BITS;
@@ -97,7 +100,7 @@ begin
             wr_rst_busy => wr_rst_busy_unconnected,
             almost_full => almost_full_unconnected,
             wr_ack => wr_ack_unconnected,
-            rd_en => read_enable,
+            rd_en => read_enable and not reset_read_pointer,
             rd_clk => read_clk,
             dout => read_data,
             empty => empty,
@@ -241,7 +244,11 @@ begin
             read_pointer_binary <= (others => '0');
             read_pointer_gray <= (others => '0');
         elsif rising_edge(read_clk) then
-            if read_enable and not empty then
+            if reset_read_pointer then
+                -- Reset read pointer to replay data (write pointer stays intact)
+                read_pointer_binary <= (others => '0');
+                read_pointer_gray <= (others => '0');
+            elsif read_enable and not empty then
                 read_pointer_binary <= read_pointer_binary + 1;
                 read_pointer_gray <= binary_to_gray(read_pointer_binary + 1);
             end if;
