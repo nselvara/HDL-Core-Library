@@ -2,6 +2,11 @@
 """
 Run all testbenches in the project using VUnit.
 It functions as a wrapper to not bother the user with the details of VUnit.
+
+WARNING: If your design uses Xilinx primitives (XPM, UNISIM, etc.),
+you MUST set use_xilinx_libs=True to avoid "glbl" module errors.
+See README.md for more details.
+
 Author: N. Selvarajah
 """
 

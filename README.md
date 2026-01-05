@@ -292,6 +292,15 @@ run_all_testbenches_lib(
 )
 ```
 
+> [!WARNING]
+> If your design uses Xilinx primitives or IP cores (e.g., `XPM` components like `xpm_cdc`, `xpm_memory`, etc.), you **must** set `use_xilinx_libs=True` in `test_runner.py`.
+>
+> Without this, ModelSim/QuestaSim will fail with errors like:
+> - `Failed to find 'glbl' in hierarchical name 'glbl.GSR'`
+> - `Error loading design`
+>
+> The flag automatically includes the Xilinx `glbl` module and required simulation libraries (`-L xpm -L unisims_ver -L secureip`).
+
 ## 🏭 Technology Support
 
 Most IP cores in this library support multiple implementations:
