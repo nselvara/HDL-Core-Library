@@ -31,7 +31,9 @@ architecture tb of tb_reset_on_startup is
     -------------------------------------------------------------
     -- Internal tb signals/constants
     -------------------------------------------------------------
-    constant SIMULATION_TIMEOUT_TIME: time := real'value(SIMULATION_TIMEOUT_IN_MS) * 1 ms;
+    constant MINIMUM_SIMULATION_TIME_IN_MS: real := 3.0; -- Minimum time needed for reset startup test
+    constant REQUESTED_SIMULATION_TIMEOUT_TIME: time := real'value(SIMULATION_TIMEOUT_IN_MS) * 1 ms;
+    constant SIMULATION_TIMEOUT_TIME: time := maximum(REQUESTED_SIMULATION_TIMEOUT_TIME, MINIMUM_SIMULATION_TIME_IN_MS * 1 ms);
     constant ENABLE_DEBUG_PRINT: boolean := false;
 
     constant SYS_CLK_FREQUENCY: real := real(100e6);
@@ -72,6 +74,10 @@ begin
     main: process begin
         test_runner_setup(runner, runner_cfg);
         info("Starting tb_lcd_controller");
+
+        if REQUESTED_SIMULATION_TIMEOUT_TIME < MINIMUM_SIMULATION_TIME_IN_MS * 1 ms then
+            warning("Simulation timeout (" & SIMULATION_TIMEOUT_IN_MS & " ms) is less than minimum required (" & real'image(MINIMUM_SIMULATION_TIME_IN_MS) & " ms). Using minimum timeout instead.");
+        end if;
 
         if ENABLE_DEBUG_PRINT then
             show(display_handler, debug);

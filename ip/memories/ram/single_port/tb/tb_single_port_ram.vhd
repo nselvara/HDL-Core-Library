@@ -33,7 +33,9 @@ architecture tb of tb_single_port_ram is
     -- Internal tb signals/constants
     -------------------------------------------------------------
     constant PROPAGATION_TIME: time := 1 ns;
-    constant SIMULATION_TIMEOUT_TIME: time := real'value(SIMULATION_TIMEOUT_IN_MS) * 1 ms;
+    constant MINIMUM_SIMULATION_TIME_IN_MS: real := 1.2; -- Minimum time needed for all tests
+    constant REQUESTED_SIMULATION_TIMEOUT_TIME: time := real'value(SIMULATION_TIMEOUT_IN_MS) * 1 ms;
+    constant SIMULATION_TIMEOUT_TIME: time := maximum(REQUESTED_SIMULATION_TIMEOUT_TIME, MINIMUM_SIMULATION_TIME_IN_MS * 1 ms);
     constant ENABLE_DEBUG_PRINT: boolean := false;
     constant RANDOM_REPETITIONS: natural := 10;
 
@@ -74,6 +76,10 @@ begin
     main: process begin
         test_runner_setup(runner, runner_cfg);
         info("Starting tb_single_port_ram");
+
+        if REQUESTED_SIMULATION_TIMEOUT_TIME < MINIMUM_SIMULATION_TIME_IN_MS * 1 ms then
+            warning("Simulation timeout (" & SIMULATION_TIMEOUT_IN_MS & " ms) is less than minimum required (" & real'image(MINIMUM_SIMULATION_TIME_IN_MS) & " ms). Using minimum timeout instead.");
+        end if;
 
         if ENABLE_DEBUG_PRINT then
             show(display_handler, debug);
