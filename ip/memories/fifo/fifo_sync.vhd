@@ -27,13 +27,27 @@ end entity;
 library xpm;
 use xpm.vcomponents.all;
 
+use work.fifo_pkg.all;
+
 --!
 --! @brief: This module is a Xilinx technology specific FIFO memory block.
 --! @note:  This module is a wrapper for the xpm_fifo_sync module.
 --! @note:  Use this primarily for Xilinx technology.
+--! @note:  XPM's wr_data_count is a registered status value that trails the
+--!         write pointer by a cycle, and its full flag does not count the two
+--!         fall-through stage words (depth 16 admits 18 words), so neither
+--!         signal can gate writes to an exact FIFO_DEPTH. The fill level is
+--!         therefore tracked locally in fill_level.
+--! @note:  The consumer should respect full and empty. Reads while empty
+--!         are ignored, exactly as XPM does internally; writes beyond full
+--!         are dropped at the XPM input so fill_level stays in lockstep
+--!         (XPM's own full flag fires two words later in fall-through mode).
 --!
 architecture xilinx_behavioural_sync_fifo of fifo_sync is
-    signal wr_data_count: std_ulogic_vector(to_bits(FIFO_DEPTH) - 1 downto 0);
+    signal fill_level: natural range 0 to FIFO_DEPTH;
+    signal write_accepted: std_ulogic;
+    signal read_accepted: std_ulogic;
+    signal wr_data_count_unconnected: std_ulogic_vector(to_bits(FIFO_DEPTH) downto 0);
 
     -- xpm_fifo_sync signals
     -- Define slv vector for xpm_fifo_sync
@@ -50,7 +64,34 @@ architecture xilinx_behavioural_sync_fifo of fifo_sync is
     signal sbiterr_unconnected: std_ulogic;
     signal dbiterr_unconnected: std_ulogic;
 begin
-    words_stored <= to_integer(unsigned(wr_data_count));
+    -- full asserts at exactly FIFO_DEPTH stored words, as with the other
+    -- architectures.
+    full <= '1' when fill_level >= FIFO_DEPTH else '0';
+    words_stored <= fill_level;
+
+    -- Exactly what reaches the XPM input, so fill_level mirrors the XPM: a
+    -- write only while not full (XPM's own full flag fires two words later
+    -- in fall-through mode), a read only while not empty (the XPM ignores
+    -- that violation itself).
+    write_accepted <= write_enable and not full;
+    read_accepted <= read_enable and not empty;
+
+    fill_level_proc: process (sys_clk) is begin
+        if rising_edge(sys_clk) then
+            if sys_rst_n = '0' then
+                fill_level <= 0;
+            elsif write_accepted and not read_accepted then
+                fill_level <= fill_level + 1;
+            elsif not write_accepted and read_accepted then
+                fill_level <= fill_level - 1;
+            end if;
+        end if;
+    end process;
+
+    -- In fall-through mode the data is already valid before the read, so a
+    -- plain read-enable pass-through is enough; whether a word is available
+    -- is the consumer's empty check, done outside.
+    read_data_valid <= read_enable;
 
     xpm_fifo_inst: xpm_fifo_sync
         generic map (
@@ -58,12 +99,14 @@ begin
             FIFO_WRITE_DEPTH => FIFO_DEPTH,
             CASCADE_HEIGHT => 0,
             WRITE_DATA_WIDTH => write_data'length,
-            READ_MODE => "std",
+            -- Fall through: the head word is available on dout before rd_en
+            READ_MODE => "fwft",
             FIFO_READ_LATENCY => 1,
             FULL_RESET_VALUE => 0,
-            USE_ADV_FEATURES => "0707",
+            -- Overflow diagnostics (the word count is tracked locally)
+            USE_ADV_FEATURES => use_advanced_features(enable_overflow => true),
             READ_DATA_WIDTH => read_data'length,
-            WR_DATA_COUNT_WIDTH => wr_data_count'length,
+            WR_DATA_COUNT_WIDTH => wr_data_count_unconnected'length,
             PROG_FULL_THRESH => 5,
             RD_DATA_COUNT_WIDTH => rd_data_count_unconnected'length,
             PROG_EMPTY_THRESH => 3,
@@ -76,11 +119,11 @@ begin
             sleep => '0',
             rst => not sys_rst_n,
             wr_clk => sys_clk,
-            wr_en => write_enable,
+            wr_en => write_accepted,
             din => write_data,
-            full => full,
+            full => open,
             prog_full => prog_full_unconnected,
-            wr_data_count => wr_data_count,
+            wr_data_count => wr_data_count_unconnected,
             overflow => overflow_unconnected,
             wr_rst_busy => wr_rst_busy_unconnected,
             almost_full => almost_full_unconnected,
@@ -93,7 +136,7 @@ begin
             underflow => underflow_unconnected,
             rd_rst_busy => rd_rst_busy_unconnected,
             almost_empty => almost_empty_unconnected,
-            data_valid => read_data_valid,
+            data_valid => open,
             injectsbiterr => '0',
             injectdbiterr => '0',
             sbiterr => sbiterr_unconnected,
